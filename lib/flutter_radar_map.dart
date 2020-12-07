@@ -190,10 +190,10 @@ class RadarMapPainter extends CustomPainter {
     double innerRadius = radarMap.radius; // 内圆半径
     if (radarMap.shape == Shape.circle) {
       // 绘制五个圆环
-      for (int s = 4; s > 0; s--) {
+      for (int s = 5; s > 0; s--) {
         canvas.drawCircle(
           Offset(0, 0),
-          innerRadius / 4 * s,
+          innerRadius / 5 * s,
           mLinePaint
             ..color = s % 2 != 0 ? Color(0x772EBBC3) : Color(0x77FFFFFF)
             ..style = PaintingStyle.fill,
@@ -271,7 +271,7 @@ class RadarMapPainter extends CustomPainter {
         canvas.rotate(360 / elementLength * i / 180 * pi + pi);
         offset = Offset(-50, r2);
       } else {
-        offset = Offset(-50, r2 * 0.84);
+        offset = Offset(-50, -r2 * 0.84);
       }
       drawText(
         canvas,
