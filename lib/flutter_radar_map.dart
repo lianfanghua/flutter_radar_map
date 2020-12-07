@@ -225,7 +225,7 @@ class RadarMapPainter extends CustomPainter {
       canvas.drawPath(
           mLinePath,
           mLinePaint
-            ..color = Colors.grey
+            ..color = Colors.white
             ..style = PaintingStyle.stroke); //绘制线
       canvas.restore();
     }
@@ -271,7 +271,7 @@ class RadarMapPainter extends CustomPainter {
         canvas.rotate(360 / elementLength * i / 180 * pi + pi);
         offset = Offset(-50, r2);
       } else {
-        offset = Offset(-50, -r2 * 0.84);
+        offset = Offset(-50, -r2);
       }
       drawText(
         canvas,
