@@ -225,7 +225,7 @@ class RadarMapPainter extends CustomPainter {
       canvas.drawPath(
           mLinePath,
           mLinePaint
-            ..color = Colors.white
+            ..color = radarMap.shape == Shape.circle ? Colors.white : Colors.grey
             ..style = PaintingStyle.stroke); //绘制线
       canvas.restore();
     }
