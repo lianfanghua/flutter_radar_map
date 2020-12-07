@@ -8,10 +8,11 @@ import 'package:flutter_radar_map/radar_map_model.dart';
 
 class RadarWidget extends StatefulWidget {
   final RadarMapModel radarMap;
-  final Color textColor;
+  final TextStyle textStyle;
   final ImageProvider image;
+  final bool isNeedDrawLegend;
 
-  RadarWidget({Key key, @required this.radarMap, this.textColor = Colors.black, this.image})
+  RadarWidget({Key key, @required this.radarMap, this.textStyle, this.image, this.isNeedDrawLegend})
       : assert(radarMap.legend.length == radarMap.data.length),
         super(key: key);
 
@@ -72,7 +73,7 @@ class _RadarMapWidgetState extends State<RadarWidget> with SingleTickerProviderS
   @override
   Widget build(BuildContext context) {
     CustomPaint paint = CustomPaint(
-      painter: RadarMapPainter(widget.radarMap, textColor: widget.textColor),
+      painter: RadarMapPainter(widget.radarMap, textStyle: widget.textStyle),
     );
 
     /// 圆形背景下，定义图片旋转
@@ -115,13 +116,14 @@ class _RadarMapWidgetState extends State<RadarWidget> with SingleTickerProviderS
         children: <Widget>[
           if (img != null && widget.radarMap.shape == Shape.circle) img,
           center,
-          Positioned(
-            top: 10,
-            right: 5,
-            child: Column(
-              children: widget.radarMap.legend.map((item) => buildLegend(item.name, item.color)).toList(),
+          if (widget.isNeedDrawLegend)
+            Positioned(
+              top: 10,
+              right: 5,
+              child: Column(
+                children: widget.radarMap.legend.map((item) => buildLegend(item.name, item.color)).toList(),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -133,11 +135,11 @@ class RadarMapPainter extends CustomPainter {
   RadarMapModel radarMap;
   Paint mLinePaint; // 线画笔
   Paint mFillPaint; // 填充画笔
-  Color textColor;
+  TextStyle textStyle;
   Path mLinePath; // 短直线路径
   int elementLength;
 
-  RadarMapPainter(this.radarMap, {this.textColor = Colors.black}) {
+  RadarMapPainter(this.radarMap, {this.textStyle}) {
     mLinePath = Path();
     mLinePaint = Paint()
       ..color = Colors.grey
@@ -164,14 +166,14 @@ class RadarMapPainter extends CustomPainter {
           radarMap.data[i].data,
           radarMap.indicator.map((item) => item.maxValues).toList(),
           Paint()
-            ..color = radarMap.legend[i].color.withOpacity(0.5)
+            ..color = radarMap.legend[i].color.withAlpha(66)
             ..isAntiAlias = true);
       drawRadarPath(
           canvas,
           radarMap.data[i].data,
           radarMap.indicator.map((item) => item.maxValues).toList(),
           Paint()
-            ..strokeWidth = 1.0
+            ..strokeWidth = 1.5
             ..style = PaintingStyle.stroke
             ..strokeJoin = StrokeJoin.round
             ..color = radarMap.legend[i].color);
@@ -180,7 +182,7 @@ class RadarMapPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+    return false;
   }
 
   /// 绘制内圈圆 || 内多边形、分割线
@@ -189,7 +191,13 @@ class RadarMapPainter extends CustomPainter {
     if (radarMap.shape == Shape.circle) {
       // 绘制五个圆环
       for (int s = 4; s > 0; s--) {
-        canvas.drawCircle(Offset(0, 0), innerRadius / 4 * s, mLinePaint..color = Colors.grey);
+        canvas.drawCircle(
+          Offset(0, 0),
+          innerRadius / 4 * s,
+          mLinePaint
+            ..color = s % 2 != 0 ? Color(0x772EBBC3) : Color(0x77FFFFFF)
+            ..style = PaintingStyle.fill,
+        );
       }
     } else {
       Path mapPath = new Path();
@@ -259,9 +267,17 @@ class RadarMapPainter extends CustomPainter {
     for (int i = 0; i < elementLength; i++) {
       Offset offset;
       canvas.save();
-      canvas.rotate(360 / elementLength * i / 180 * pi + pi);
-      offset = Offset(-50, r2);
-      drawText(canvas, radarMap.indicator[i].name, offset, color: textColor, fontSize: radarMap.radius * 0.12);
+      if (i != 0) {
+        canvas.rotate(360 / elementLength * i / 180 * pi + pi);
+        offset = Offset(-50, r2);
+      } else {
+        offset = Offset(-50, r2 * 0.84);
+      }
+      drawText(
+        canvas,
+        radarMap.indicator[i].name,
+        offset,
+      );
       canvas.restore();
     }
   }
@@ -271,9 +287,9 @@ class RadarMapPainter extends CustomPainter {
     Canvas canvas,
     String text,
     Offset offset, {
-    Color color = Colors.black,
+    // Color color = Colors.black,
     double maxWith = 100,
-    double fontSize,
+    // double fontSize,
     String fontFamily,
     TextAlign textAlign = TextAlign.center,
     FontWeight fontWeight = FontWeight.normal,
@@ -282,11 +298,11 @@ class RadarMapPainter extends CustomPainter {
       ui.ParagraphStyle(
         fontFamily: fontFamily,
         textAlign: textAlign,
-        fontSize: fontSize,
+        fontSize: textStyle.fontSize ?? radarMap.radius * 0.16,
         fontWeight: fontWeight,
       ),
     );
-    paragraphBuilder.pushStyle(ui.TextStyle(color: color, textBaseline: ui.TextBaseline.alphabetic));
+    paragraphBuilder.pushStyle(ui.TextStyle(color: textStyle.color ?? Colors.black, textBaseline: ui.TextBaseline.alphabetic));
     paragraphBuilder.addText(text);
     var paragraph = paragraphBuilder.build();
     paragraph.layout(ui.ParagraphConstraints(width: maxWith));
