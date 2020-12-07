@@ -271,7 +271,7 @@ class RadarMapPainter extends CustomPainter {
         canvas.rotate(360 / elementLength * i / 180 * pi + pi);
         offset = Offset(-50, r2);
       } else {
-        offset = Offset(-50, -r2);
+        offset = Offset(-50, -r2 - textStyle.fontSize - 10);
       }
       drawText(
         canvas,
