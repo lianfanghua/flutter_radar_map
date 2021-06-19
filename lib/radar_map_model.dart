@@ -10,7 +10,7 @@ class RadarMapModel {
   int duration;
   double radius;
 
-  RadarMapModel({@required this.legend, @required this.data, @required this.indicator, @required this.radius, this.duration = 2000, this.shape = Shape.circle});
+  RadarMapModel({required this.legend, required this.data, required this.indicator, required this.radius, this.duration = 2000, this.shape = Shape.circle});
 }
 
 /// 考虑legend、Dimension、data的长度对应关系

@@ -1,12 +1,9 @@
 name: flutter_radar_map
 description: A new Flutter package provides a customizable radar map.
 version: 0.0.1
-author: wxqkb0824@gmail.com
-homepage: https://github.com/WxqKb/flutter_radar_map.git
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.17.0 <2.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:

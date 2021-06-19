@@ -8,11 +8,11 @@ import 'package:flutter_radar_map/radar_map_model.dart';
 
 class RadarWidget extends StatefulWidget {
   final RadarMapModel radarMap;
-  final TextStyle textStyle;
-  final ImageProvider image;
-  final bool isNeedDrawLegend;
+  final TextStyle? textStyle;
+  final ImageProvider? image;
+  final bool? isNeedDrawLegend;
 
-  RadarWidget({Key key, @required this.radarMap, this.textStyle, this.image, this.isNeedDrawLegend})
+  RadarWidget({Key? key, required this.radarMap, this.textStyle, this.image, this.isNeedDrawLegend})
       : assert(radarMap.legend.length == radarMap.data.length),
         super(key: key);
 
@@ -22,8 +22,8 @@ class RadarWidget extends StatefulWidget {
 
 class _RadarMapWidgetState extends State<RadarWidget> with SingleTickerProviderStateMixin {
   double _angle = 0.0;
-  AnimationController controller; // 动画控制器
-  Animation<double> animation; // 动画实例
+  late AnimationController controller; // 动画控制器
+  late Animation<double> animation; // 动画实例
   var img;
 
   @override
@@ -64,7 +64,7 @@ class _RadarMapWidgetState extends State<RadarWidget> with SingleTickerProviderS
         ),
         Text(
           legendTitle,
-          style: Theme.of(context).textTheme.subtitle2.copyWith(fontSize: 12.0),
+          style: Theme.of(context).textTheme.subtitle2!.copyWith(fontSize: 12.0),
         )
       ],
     );
@@ -85,7 +85,7 @@ class _RadarMapWidgetState extends State<RadarWidget> with SingleTickerProviderS
           child: ClipRRect(
             borderRadius: BorderRadius.circular(widget.radarMap.radius),
             child: Image(
-              image: widget.image,
+              image: widget.image!,
               width: widget.radarMap.radius * 2,
               height: widget.radarMap.radius * 2,
               fit: BoxFit.cover,
@@ -112,11 +112,11 @@ class _RadarMapWidgetState extends State<RadarWidget> with SingleTickerProviderS
       width: MediaQuery.of(context).size.width,
       child: Stack(
         alignment: Alignment.center,
-        overflow: Overflow.clip,
-        children: <Widget>[
+        clipBehavior: Clip.hardEdge,
+        children: [
           if (img != null && widget.radarMap.shape == Shape.circle) img,
           center,
-          if (widget.isNeedDrawLegend)
+          if (widget.isNeedDrawLegend!)
             Positioned(
               top: 10,
               right: 5,
@@ -133,11 +133,11 @@ class _RadarMapWidgetState extends State<RadarWidget> with SingleTickerProviderS
 /// canvas绘制
 class RadarMapPainter extends CustomPainter {
   RadarMapModel radarMap;
-  Paint mLinePaint; // 线画笔
-  Paint mFillPaint; // 填充画笔
-  TextStyle textStyle;
-  Path mLinePath; // 短直线路径
-  int elementLength;
+  late Paint mLinePaint; // 线画笔
+  Paint? mFillPaint; // 填充画笔
+  TextStyle? textStyle;
+  late Path mLinePath; // 短直线路径
+  late int elementLength;
 
   RadarMapPainter(this.radarMap, {this.textStyle}) {
     mLinePath = Path();
@@ -235,16 +235,16 @@ class RadarMapPainter extends CustomPainter {
 
   /// 绘制区域
   drawRadarMap(Canvas canvas, List<double> value, List<double> maxList, Paint mapPaint) {
-    Path mradarMapPath = Path();
+    Path radarMapPath = Path();
     double step = radarMap.radius / elementLength; //每小段的长度
-    mradarMapPath.moveTo(0, -value[0] / (maxList[0] / elementLength) * step); //起点
+    radarMapPath.moveTo(0, -value[0] / (maxList[0] / elementLength) * step); //起点
     for (int i = 1; i < elementLength; i++) {
       double mark = value[i] / (maxList[i] / elementLength);
       var deg = pi / 180 * (360 / elementLength * i - 90);
-      mradarMapPath.lineTo(mark * step * cos(deg), mark * step * sin(deg));
+      radarMapPath.lineTo(mark * step * cos(deg), mark * step * sin(deg));
     }
-    mradarMapPath.close();
-    canvas.drawPath(mradarMapPath, mapPaint);
+    radarMapPath.close();
+    canvas.drawPath(radarMapPath, mapPaint);
   }
 
   /// 绘制边框
@@ -271,7 +271,7 @@ class RadarMapPainter extends CustomPainter {
         canvas.rotate(360 / elementLength * i / 180 * pi + pi);
         offset = Offset(-50, r2);
       } else {
-        offset = Offset(-50, -r2 - textStyle.fontSize - 8);
+        offset = Offset(-50, -r2 - textStyle!.fontSize! - 8);
       }
       drawText(
         canvas,
@@ -290,7 +290,7 @@ class RadarMapPainter extends CustomPainter {
     // Color color = Colors.black,
     double maxWith = 100,
     // double fontSize,
-    String fontFamily,
+    String? fontFamily,
     TextAlign textAlign = TextAlign.center,
     FontWeight fontWeight = FontWeight.normal,
   }) {
@@ -298,11 +298,11 @@ class RadarMapPainter extends CustomPainter {
       ui.ParagraphStyle(
         fontFamily: fontFamily,
         textAlign: textAlign,
-        fontSize: textStyle.fontSize ?? radarMap.radius * 0.16,
+        fontSize: textStyle!.fontSize ?? radarMap.radius * 0.16,
         fontWeight: fontWeight,
       ),
     );
-    paragraphBuilder.pushStyle(ui.TextStyle(color: textStyle.color ?? Colors.black, textBaseline: ui.TextBaseline.alphabetic));
+    paragraphBuilder.pushStyle(ui.TextStyle(color: textStyle!.color ?? Colors.black, textBaseline: ui.TextBaseline.alphabetic));
     paragraphBuilder.addText(text);
     var paragraph = paragraphBuilder.build();
     paragraph.layout(ui.ParagraphConstraints(width: maxWith));
